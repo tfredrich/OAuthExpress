@@ -1,0 +1,5 @@
+build/
+dist/
+out/
+.settings/
+.DS_Store
