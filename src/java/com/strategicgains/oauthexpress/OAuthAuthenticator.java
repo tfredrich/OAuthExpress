@@ -30,7 +30,7 @@ implements Authenticator
 {
 	private OAuthService oauth;
 	
-	public OAuthAuthenticator(Class<? extends Api> provider, String apiKey, String apiSecret, String authorizeUrl, String callbackUrl)
+	public OAuthAuthenticator(Class<? extends Api> provider, String apiKey, String apiSecret, String callbackUrl)
 	{
 		oauth = new ServiceBuilder()
 	        .provider(provider)
@@ -57,9 +57,9 @@ implements Authenticator
 		OAuthAuthenticator service = new OAuthAuthenticator(TwitterApi.class,
 			"Sk5be32VnALj3eTBUxgGqw",
 			"Bqm5qqMYdg52FdCR1Zh4gSy1iJhHRtXkscNFMr8kTI",
-			"https://twitter.com/oauth/authorize?oauth_token=",
+//			"https://twitter.com/oauth/authorize?oauth_token=",
 			"http://www.urlclix.com/oauth/twitter/authenticated");
 		String authToken = service.getAuthToken();
-		System.out.println("oauth_token=" + authToken);
+		System.out.println("https://twitter.com/oauth/authorize?oauth_token=" + authToken);
 	}
 }
