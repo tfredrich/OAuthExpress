@@ -17,49 +17,73 @@ package com.strategicgains.oauthexpress;
 
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.Api;
-import org.scribe.builder.api.TwitterApi;
+import org.scribe.model.OAuthRequest;
+import org.scribe.model.Response;
 import org.scribe.model.Token;
+import org.scribe.model.Verb;
+import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
 /**
  * @author toddf
  * @since Dec 15, 2010
  */
-public class OAuthAuthenticator
+public abstract class OAuthAuthenticator
 implements Authenticator
 {
 	private OAuthService oauth;
-	
-	public OAuthAuthenticator(Class<? extends Api> provider, String apiKey, String apiSecret, String callbackUrl)
+	private String authenticationUrl;
+	private String logoutUrl;
+
+	public OAuthAuthenticator(Class<? extends Api> provider,
+		String apiKey,
+		String apiSecret,
+		String callbackUrl,
+		String authenticationUrl,
+		String logoutUrl
+	)
 	{
 		oauth = new ServiceBuilder()
 	        .provider(provider)
 	        .apiKey(apiKey)
 	        .apiSecret(apiSecret)
 	        .callback(callbackUrl)
-	        .build();		
+	        .build();
+		this.authenticationUrl = authenticationUrl;
+		this.logoutUrl = logoutUrl;
 	}
 
-	@Override
-	public boolean isAuthenticated(String token)
+	public Token getRequestToken()
 	{
-		return false;
-	}
-	
-	public String getAuthToken()
-	{
-		Token requestToken = oauth.getRequestToken();
-		return requestToken.getToken();
+		return oauth.getRequestToken();
 	}
 
-	public static void main(String[] args)
+	public String getAuthorizationUrl(Token requestToken)
 	{
-		OAuthAuthenticator service = new OAuthAuthenticator(TwitterApi.class,
-			"Sk5be32VnALj3eTBUxgGqw",
-			"Bqm5qqMYdg52FdCR1Zh4gSy1iJhHRtXkscNFMr8kTI",
-//			"https://twitter.com/oauth/authorize?oauth_token=",
-			"http://www.urlclix.com/oauth/twitter/authenticated");
-		String authToken = service.getAuthToken();
-		System.out.println("https://twitter.com/oauth/authorize?oauth_token=" + authToken);
+		return oauth.getAuthorizationUrl(requestToken);
 	}
+
+    @Override
+    public Token getAccessToken(Token requestToken, String verification)
+    {
+		Verifier verifier = new Verifier(verification);
+		return oauth.getAccessToken(requestToken, verifier);
+    }
+
+    @Override
+    public boolean isAuthenticated(Token accessToken)
+    {
+		OAuthRequest oauthRequest = new OAuthRequest(Verb.GET, authenticationUrl);
+		oauth.signRequest(accessToken, oauthRequest);
+		Response oauthResponse = oauthRequest.send();
+		return (oauthResponse.getCode() == 200);
+    }
+    
+    @Override
+    public void endSession(Token accessToken)
+    {
+		OAuthRequest oauthRequest = new OAuthRequest(Verb.GET, logoutUrl);
+		oauth.signRequest(accessToken, oauthRequest);
+		oauthRequest.send();
+    }
 }

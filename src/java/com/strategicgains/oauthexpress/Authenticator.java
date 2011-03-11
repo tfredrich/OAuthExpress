@@ -15,11 +15,16 @@
 */
 package com.strategicgains.oauthexpress;
 
+import org.scribe.model.Token;
+
 /**
  * @author toddf
  * @since Dec 15, 2010
  */
 public interface Authenticator
 {
-	public boolean isAuthenticated(String token);
+	public Token getRequestToken();
+	public Token getAccessToken(Token requestToken, String verification);
+	public boolean isAuthenticated(Token accessToken);
+	public void endSession(Token accessToken);
 }
