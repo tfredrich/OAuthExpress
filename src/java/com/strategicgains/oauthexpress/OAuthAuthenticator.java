@@ -62,6 +62,11 @@ implements Authenticator
 	{
 		return oauth.getAuthorizationUrl(requestToken);
 	}
+	
+	public String getSigninUrl(Token requestToken)
+	{
+		return getAuthorizationUrl(requestToken);
+	}
 
     @Override
     public Token getAccessToken(Token requestToken, String verification)

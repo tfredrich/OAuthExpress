@@ -16,6 +16,7 @@
 package com.strategicgains.oauthexpress;
 
 import org.scribe.builder.api.TwitterApi;
+import org.scribe.model.Token;
 
 /**
  * Uses the Twitter OAuth API to login and authenticate requests.
@@ -26,8 +27,9 @@ import org.scribe.builder.api.TwitterApi;
 public class TwitterAuthenticator
 extends OAuthAuthenticator
 {
-	private static final String AUTHENTICATION_URL = "http://api.twitter.com/1/account/verify_credentials.json";
-	private static final String END_SESSION_URL = "http://api.twitter.com/version/account/end_session.json";
+	private static final String AUTHENTICATION_URL = "https://api.twitter.com/1/account/verify_credentials.json";
+	private static final String END_SESSION_URL = "https://api.twitter.com/version/account/end_session.json";
+	private static final String SIGN_IN_WITH_TWITTER_URL = "https://api.twitter.com/oauth/authenticate?oauth_token=%s";
 
 	/**
 	 * @param apiKey
@@ -37,5 +39,11 @@ extends OAuthAuthenticator
 	public TwitterAuthenticator(String apiKey, String apiSecret, String callbackUrl)
 	{
 		super(TwitterApi.class, apiKey, apiSecret, callbackUrl, AUTHENTICATION_URL, END_SESSION_URL);
+	}
+	
+	@Override
+	public String getSigninUrl(Token token)
+	{
+		return String.format(SIGN_IN_WITH_TWITTER_URL, token.getToken());
 	}
 }
